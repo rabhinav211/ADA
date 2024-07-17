@@ -1,57 +1,55 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int s[100];         
-int res[100];
-int m=0;            
+#define v 6
 
-void dfs(int u, int n, int a[n][n]);
-void dfs_tp(int n, int a[n][n]);
+int stack[v];
+int top = -1;
 
-void dfs_tp(int n, int a[n][n]){
-   
-    for(int i=0;i<n;i++)
-        s[i]=0;
-   
-    for(int u=0; u<n; u++){
-        if(s[u]==0)
-            dfs(u,n,a);
-    }
+void push(int vertex) {
+    stack[++top] = vertex;
 }
 
-void dfs(int u, int n, int a[n][n]){
-   
-    s[u]=1;    
-    res[m]=u;
-    m++;
-   
-    for(int v=0; v<n; v++){
-        if(a[u][v]==1 && s[v]==0)
-            dfs(v,n,a);
-    }
+int pop() {
+    return stack[top--];
 }
 
-int main()
-{
-    int i,n;
-    n=6;
+void dfs(int vertex, int visited[v], int adj[v][v]) {
+    visited[vertex] = 1;
+    for (int i = 0; i < v; i++) {
+        if (adj[vertex][i] == 1 && !visited[i]) {
+            dfs(i, visited, adj);
+        }
+    }
+    push(vertex);
+}
 
-    int a[6][6] = {
-       
-        {0, 0, 0, 0, 0, 0},  // Node 0
-        {0, 0, 0, 1, 0, 0},  // Node 1
-        {0, 0, 0, 1, 0, 0},  // Node 2
-        {0, 0, 0, 0, 0, 0},  // Node 3
-        {1, 1, 0, 0, 0, 0},  // Node 4
-        {1, 0, 1, 0, 0, 0}   // Node 5
-   
+void toposort(int adj[v][v]) {
+    int visited[v] = {0};
+
+    for (int i = 0; i < v; i++) {
+        if (!visited[i]) {
+            dfs(i, visited, adj);
+        }
+    }
+
+    printf("Topological sort: ");
+    while (top != -1) {
+        printf("%d ", pop() + 1); // Adding 1 to match the expected output format
+    }
+    printf("\n");
+}
+
+int main() {
+    int a_matrix[v][v] = {
+        {0, 1, 0, 0, 0, 1},
+        {0, 0, 1, 1, 0, 0},
+        {0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1},
+        {1, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0}
     };
 
-   
-    dfs_tp(n,a);
-   
-    printf("DFS Traversal order:\n");
-    for(int i=n-1;i>0;i--)
-    printf("%d\t",res[i]);
-
+    toposort(a_matrix);
     return 0;
 }
